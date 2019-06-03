@@ -40,11 +40,11 @@ module ActiveSchema
     end
 
     def format
-      begin
+      # begin
         send("format_#{error.failed_attribute.downcase}")
-      rescue
-        default_format
-      end
+      # rescue
+      #   default_format
+      # end
 
       OpenStruct.new(key: key, message: message, options: options)
     end
@@ -89,6 +89,12 @@ module ActiveSchema
       @options = { count: count.to_i }
     end
 
+    def format_allof
+      @message = ActiveSchema::ErrorsFormatter.new(
+        error.errors[:allof_1]
+      ).format
+    end
+
     def format_typev4
       #Original: did not match the following type: string in schema
       type = error.message.split(' in schema')[0].split(' ').last
@@ -101,6 +107,8 @@ module ActiveSchema
           @message = :not_a_string
         when 'boolean'
           @message = :not_a_boolean
+        when 'array'
+          @message = :not_an_array
         else
           @message = :invalid
       end

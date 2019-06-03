@@ -129,7 +129,7 @@ module Sinatra
           request.body.rewind
           params[:body] = request.body.read
 
-          validate(body_schema, params[:body].to_json) if params[:body]
+          validate(body_schema, params[:body]) if params[:body]
         end
 
         private
@@ -146,16 +146,16 @@ module Sinatra
             schema_errors
           ).format
 
-          @invalidities = formatted_errors.map do |e|
-            {
-              e.key => I18n.t(
-                e.message,
-                e.options.merge(scope: 'errors.messages')
-              )
-            }
-          end
+          @invalidities = error_map(formatted_errors)
 
           @invalidities = @invalidities.reduce({}, :merge)
+        end
+
+        def error_map(errors)
+          errors.map do |e|
+            next { e.key => error_map(e.message).reduce({}, :merge) } if e.message.is_a?(Array)
+            { e.key => I18n.t(e.message, e.options.merge(scope: 'errors.messages'))}
+          end
         end
 
         def cast(value, type = 'string')
