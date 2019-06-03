@@ -1,4 +1,5 @@
-require "json-schema"
+require 'json'
+require 'json-schema'
 
 module Swagger
   # Casts a string value to the ruby datatype as definied in the swagger spec
@@ -20,7 +21,7 @@ module Swagger
 
   class Base
     attr_reader :spec
-    
+
     # Pre-load JSON-schema files used for validation
     Dir.glob(File.join(__dir__, "../../schema/*-schema.json")) do |schema|
       data = JSON.parse(File.read(schema))
