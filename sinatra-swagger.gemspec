@@ -20,8 +20,8 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.0'
 
   s.add_dependency 'json-schema', '~> 2.5', '>= 2.5.1'
-  s.add_dependency 'sinatra', '~> 1.4'
-  s.add_dependency 'sinatra-contrib', '~>1.4'
+  s.add_dependency 'sinatra'
+  s.add_dependency 'sinatra-contrib'
   s.add_dependency 'fuzzy_match'
   s.add_dependency 'i18n'
 
