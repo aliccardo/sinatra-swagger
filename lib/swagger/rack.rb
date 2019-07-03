@@ -7,6 +7,7 @@ module Swagger
       path = env['REQUEST_PATH']
       verb = env['REQUEST_METHOD'].downcase
       spec_path = match_string(@spec['paths'], path)
+
       return nil if spec_path.nil?
 
       spec = @spec['paths'][spec_path][verb]
@@ -14,22 +15,31 @@ module Swagger
       return nil if spec.nil?
 
       {
-        path: spec_path,
+        path:     spec_path,
         captures: get_captures(spec_path, path),
-        spec: spec
+        spec:     spec
       }
     end
 
     private
 
     def match_string(paths, path)
-      groupings = paths.keys.map do |key|
-        key.split('/').map do |k|
-          Regexp.new("#{k}/", 'i')
-        end
+      current_paths = []
+      longest_capture_match = 0
+
+      paths.keys.each do |spec_path|
+        captures = get_captures(spec_path, path)
+        num_captures = captures.nil? ? 0 : captures.keys.count
+
+        next current_paths = [spec_path] if num_captures > longest_capture_match
+        next current_paths << spec_path  if num_captures == longest_capture_match
+      end
+
+      groupings = current_paths.max_by(&:length).split('/').map do |k|
+        Regexp.new("#{k}/", 'i')
       end.flatten
 
-      FuzzyMatch.new(paths.keys, groupings: groupings).find(path)
+      FuzzyMatch.new(current_paths, groupings: groupings).find(path)
     end
 
     def get_captures(spec_path, path)
