@@ -5,6 +5,7 @@ en:
       inclusion: "is not valid. Valid values are '%{list}'"
       exclusion: "is reserved"
       invalid: "is invalid"
+      invalid_pattern: 'is incorrectly formatted'
       confirmation: "doesn't match %{attribute}"
       accepted: "must be accepted"
       empty: "can't be empty"

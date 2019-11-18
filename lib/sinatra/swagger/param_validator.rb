@@ -77,6 +77,7 @@ module Sinatra
 
           validate_query if query_params.any?
           validate_body if body_params.any?
+          validate_path if path_params.any?
 
           @invalidities || []
         end
@@ -89,10 +90,26 @@ module Sinatra
           end
         end
 
+        def path_params
+          @path_params ||= @parameters.select { |p| p['in'] == 'path' }.map do |qp|
+            {
+              qp['name'] => qp
+            }
+          end
+        end
+
         def query_schema
+          format_schema(query_params)
+        end
+
+        def path_schema
+          format_schema(path_params)
+        end
+
+        def format_schema(schema_params)
           @required = []
 
-          query_params.each do |qp|
+          schema_params.each do |qp|
             name    = qp.keys[0]
             details = qp.values[0]
             param   = params[name]
@@ -104,10 +121,10 @@ module Sinatra
             @required << name if details['required'] == true
           end
 
-          @query_schema ||= {
+          @schema ||= {
             'type' => 'object',
             'required' => @required,
-            'properties' => query_params.reduce({}, :merge)
+            'properties' => schema_params.reduce({}, :merge)
           }
         end
 
@@ -119,6 +136,10 @@ module Sinatra
           @body_schema ||= body_params[0]['schema'].merge!(
             definitions: definitions
           )
+        end
+
+        def validate_path
+          validate(path_schema, captures)
         end
 
         def validate_query

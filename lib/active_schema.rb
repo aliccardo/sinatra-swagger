@@ -58,7 +58,7 @@ module ActiveSchema
     end
 
     def format_pattern
-      @message = :invalid
+      @message = :invalid_pattern
     end
 
     def format_minimum
