@@ -99,14 +99,16 @@ module Sinatra
         end
 
         def query_schema
-          format_schema(query_params)
+          format_schema('query', query_params)
         end
 
         def path_schema
-          format_schema(path_params)
+          format_schema('path', path_params)
         end
 
-        def format_schema(schema_params)
+        def format_schema(namespace, schema_params)
+          schema_name = "@#{namespace}_schema"
+
           @required = []
 
           schema_params.each do |qp|
@@ -121,11 +123,15 @@ module Sinatra
             @required << name if details['required'] == true
           end
 
-          @schema ||= {
+          return instance_variable_get(schema_name) if instance_variable_get(schema_name)
+
+          schema_hash = {
             'type' => 'object',
             'required' => @required,
             'properties' => schema_params.reduce({}, :merge)
           }
+
+          instance_variable_set(schema_name, schema_hash)
         end
 
         def body_params
